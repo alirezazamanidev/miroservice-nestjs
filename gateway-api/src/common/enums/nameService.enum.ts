@@ -1,6 +1,6 @@
 
-export enum NameService {
+export enum Services {
     AUTH_SERVICE = 'AUTH_SERVICE',
-    
+
 }
 

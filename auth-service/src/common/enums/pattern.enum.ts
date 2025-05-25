@@ -1,5 +1,15 @@
+export enum PatternNameEnum {
+  // Auth Service
+  GOOGLE_LOGIN = 'auth/google-login',
+  VALIDATE_USER = 'auth/validate-user',
+  GET_USER_INFO = 'auth/get-user-info',
 
+  // File Service
+  UPLOAD_FILE = 'file/upload',
+  GET_FILE_URL = 'file/get-url',
+  DELETE_FILE = 'file/delete',
+  LIST_FILES = 'file/list',
 
-export enum PatternNameEnum{
-
+  // General
+  HEALTH_CHECK = 'service/health-check',
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { config } from 'process';
+import { AuthController } from './controllers/auth.controller';
 
 @Module({
   imports: [
@@ -9,5 +10,6 @@ import { config } from 'process';
       envFilePath: '.env',
     })
   ],
+  controllers:[AuthController]
 })
 export class AuthModule {}
