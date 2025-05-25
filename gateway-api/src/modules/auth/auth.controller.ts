@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor() {}
 
   @ApiOperation({ summary: 'login with Google' })
   @UseGuards(AuthGuard('google'))
