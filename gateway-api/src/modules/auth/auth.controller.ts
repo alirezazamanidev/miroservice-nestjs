@@ -36,28 +36,22 @@ export class AuthController {
   async googleCallback(@Req() req: Request) {
     // Send user information to the auth service for further processing
     const response = await lastValueFrom(
-      this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user).pipe(),
+      this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user).pipe(
+        catchError((error) => {
+          throw new HttpException(
+            {
+              status: error.status || 500,
+              message: error.message || 'Internal Server Error',
+            },
+            error.status || 500,
+          );
+        }),
+      ),
     );
+
     // const response=await this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user)
     // return {MESSAGES: 'User logged in successfully', user };
     return { message: 'ok' };
   }
-  @Get('test')
-  async test() {
-    
-      await lastValueFrom(this.authClient.send('test', {}).pipe(
-        catchError((err) => {
-          throw new HttpException(
-            {
-              status: err?.status || 500,
-              message: err.message || 'Internal Server Error',
-            },
-            err.status,
-          );
-        }),
-      ));
-        
-      
-   
-  }
+
 }
