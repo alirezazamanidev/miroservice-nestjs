@@ -11,6 +11,45 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) readonly cacheManager: Cache,
   ) {}
+  async refreshTokens(refreshToken: string): Promise<Tokens> {
+    try {
+      // Decode the refresh token to get the googleId
+      const decoded = this.jwtService.verify(refreshToken, {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+      });
+
+      // Check if the refresh token exists in cache
+      const cachedToken = await this.cacheManager.get<string>(
+        `refreshToken:${decoded.googleId}`,
+      );
+
+      if (!cachedToken) {
+        throw new RpcException({
+          status: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid or expired refresh token',
+        });
+      }
+      // Generate new access and refresh tokens
+      const newTokens = await this.generateJwtTokens({
+        googleId: decoded.googleId,
+        email: decoded.email,
+        username: decoded.username,
+      });
+      await this.cacheManager.set(
+        `refreshToken:${decoded.googleId}`,
+        newTokens.refreshToken,
+        60 * 60 * 24 * 7,
+      ); // 7 days in seconds
+
+ 
+      return newTokens;
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Failed to refresh tokens',
+      });
+    }
+  }
 
   async generateJwtTokens(user: {
     googleId: string;

@@ -3,7 +3,7 @@ export enum PatternNameEnum {
   GOOGLE_LOGIN = 'auth/google-login',
   VALIDATE_USER = 'auth/validate-user',
   GET_USER_INFO = 'auth/get-user-info',
-
+  REFRESH_TOKEN = 'auth/refresh-token',
   // File Service
   UPLOAD_FILE = 'file/upload',
   GET_FILE_URL = 'file/get-url',
