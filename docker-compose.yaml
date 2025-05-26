@@ -9,4 +9,9 @@ services:
     volumes:
         - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
         - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
- 
+  redis:
+    container_name: redis_db_project
+    image: redis:7.4.1-alpine3.20
+  
+    ports:
+      - 6379:6379
