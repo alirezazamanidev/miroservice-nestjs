@@ -16,7 +16,9 @@ export const appInitialization = (app: NestExpressApplication) => {
   });
   // filters config
   const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+  app.useGlobalFilters(
+    new AllExceptionsFilter(httpAdapterHost),
+  );
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   // middlewares

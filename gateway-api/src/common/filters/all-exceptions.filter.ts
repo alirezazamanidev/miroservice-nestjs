@@ -12,13 +12,11 @@ import { RpcException } from '@nestjs/microservices';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
-
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
-
     let httpStatus: number;
     let message: string;
     let details: any = {};
@@ -31,18 +29,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const resObj = response as any;
         message = resObj.message;
         details = resObj.error || {};
-      }
-    } else if (exception instanceof RpcException) {
-
-      const rpcError = exception.getError();
-      if (typeof rpcError === 'string') {
-        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        message = rpcError;
-      } else {
-        const errorObj = rpcError as any;
-        httpStatus = errorObj.status || HttpStatus.INTERNAL_SERVER_ERROR;
-        message = errorObj.message || 'An unexpected error occurred in a microservice.';
-        details = errorObj.details || {};
       }
     } else {
 
