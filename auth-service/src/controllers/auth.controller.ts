@@ -17,4 +17,13 @@ export class AuthController {
   
     return tokens
   }
+
+  @MessagePattern(PatternNameEnum.VERIFY_ACCESS_TOKEN)
+   verifyAccessToken(@Payload() { accessToken }: { accessToken: string }) {
+    
+      return this.authService.verifyAccessToken(accessToken);
+      
+  }
+
+    
 }

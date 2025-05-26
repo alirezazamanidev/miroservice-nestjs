@@ -18,6 +18,7 @@ import { PatternNameEnum } from 'src/common/enums/pattern.enum';
 import { catchError, firstValueFrom, lastValueFrom } from 'rxjs';
 import { CookieNameEnum } from 'src/common/enums/cookie-name.enum';
 import { access } from 'fs';
+import { Auth } from './decorators/auth.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -52,23 +53,24 @@ export class AuthController {
       ),
     );
     if (!result) throw new UnauthorizedException('login failed!');
-    // handle the set cookie and redirect to the frontend
-    if (result) {
-      res.cookie(CookieNameEnum.ACCESS_TOKEN, result.accessToken, {
+    res
+      .cookie(CookieNameEnum.REFRESH_TOKEN, result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
-      });
-      res.cookie(CookieNameEnum.REFRESH_TOKEN, result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      });
+        sameSite: 'lax',
 
-      res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
-    }
+        expires: new Date(Date.now() + 7 * 24 * 3600 * 1000),
+      })
+      .cookie(CookieNameEnum.ACCESS_TOKEN, result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        expires: new Date(Date.now() + 1 * 3600 * 1000),
+      })
+      .json({
+        [CookieNameEnum.ACCESS_TOKEN]: result.accessToken,
+        message: 'Token refreshed successfully',
+      });
   }
   @ApiOperation({ summary: 'refresh  token' })
   @Get('refresh')
@@ -92,7 +94,7 @@ export class AuthController {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          
+
           expires: new Date(Date.now() + 7 * 24 * 3600 * 1000),
         })
         .json({
@@ -105,5 +107,12 @@ export class AuthController {
         'Invalid refresh token, please login again.',
       );
     }
+  }
+
+  @Auth()
+  @ApiOperation({summary:"payload user"})
+  @Get('payload-user')
+  payload(@Req() req: Request) {
+    return req.user
   }
 }

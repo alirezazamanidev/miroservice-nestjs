@@ -89,4 +89,19 @@ export class AuthService {
       });
     }
   }
+  async verifyAccessToken(token:string){
+    try {
+        
+        return this.jwtService.verify(token, {
+          secret: process.env.ACCESS_TOKEN_SECRET,
+        });
+        
+        
+    } catch (error) {
+        throw new RpcException({
+            status: HttpStatus.UNAUTHORIZED,
+            message: 'Failed to verify access token',
+          });
+    }
+  }
 }
