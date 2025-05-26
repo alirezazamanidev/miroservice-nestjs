@@ -15,6 +15,7 @@ import { Services } from 'src/common/enums/nameService.enum';
 import { ClientProxy } from '@nestjs/microservices';
 import { PatternNameEnum } from 'src/common/enums/pattern.enum';
 import { catchError, firstValueFrom, lastValueFrom } from 'rxjs';
+import { CookieNameEnum } from 'src/common/enums/cookie-name.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -33,9 +34,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Google callback' })
   @UseGuards(AuthGuard('google'))
   @Get('google/callback')
-  async googleCallback(@Req() req: Request) {
+  async googleCallback(@Req() req: Request,@Res() res: Response) {
     // Send user information to the auth service for further processing
-    const response = await lastValueFrom(
+    const result= await lastValueFrom(
       this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user).pipe(
         catchError((error) => {
           throw new HttpException(
@@ -48,10 +49,24 @@ export class AuthController {
         }),
       ),
     );
+    // handle the set cookie and redirect to the frontend
+    if (result) {
+      res.cookie(CookieNameEnum.ACCESS_TOKEN, result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+      });
+      res.cookie(CookieNameEnum.REFRESH_TOKEN, result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      });
+    }
+      res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
 
-    // const response=await this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user)
-    // return {MESSAGES: 'User logged in successfully', user };
-    return { message: 'ok' };
+    
   }
 
 }
