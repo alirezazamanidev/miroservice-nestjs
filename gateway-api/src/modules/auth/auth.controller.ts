@@ -27,14 +27,9 @@ export class AuthController {
     
     // Send user information to the auth service for further processing
        const response = await lastValueFrom(
-      this.authClient.send(PatternNameEnum.GOOGLE_LOGIN,req.user).pipe(
-        catchError((err) => {
-          throw err;
-        })
-      )
+      this.authClient.send(PatternNameEnum.GOOGLE_LOGIN,req.user)
     );
-    console.log(response);
-    
+    // const response=await this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user)
     // return {MESSAGES: 'User logged in successfully', user };
     return {message:'ok'}
   }
