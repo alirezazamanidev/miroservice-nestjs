@@ -13,17 +13,12 @@ export class AuthController {
   }
   @MessagePattern(PatternNameEnum.REFRESH_TOKEN)
   async refreshTokens(@Payload() { refreshToken }: { refreshToken: string }) {
-    const tokens=await this.authService.refreshTokens(refreshToken);
-  
-    return tokens
+    const tokens = await this.authService.refreshTokens(refreshToken);
+    return tokens;
   }
 
   @MessagePattern(PatternNameEnum.VERIFY_ACCESS_TOKEN)
-   verifyAccessToken(@Payload() { accessToken }: { accessToken: string }) {
-    
-      return this.authService.verifyAccessToken(accessToken);
-      
+  verifyAccessToken(@Payload() { accessToken }: { accessToken: string }) {
+    return this.authService.verifyAccessToken(accessToken);
   }
-
-    
 }

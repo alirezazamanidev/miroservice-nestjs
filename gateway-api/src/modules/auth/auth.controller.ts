@@ -42,6 +42,8 @@ export class AuthController {
     const result = await lastValueFrom(
       this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user).pipe(
         catchError((error) => {
+          console.log(error);
+          
           throw new HttpException(
             {
               status: error.status || 500,
