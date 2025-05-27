@@ -18,5 +18,7 @@ declare namespace NodeJS {
    MINIO_USE_SSL:string
    MINIO_BUCKET_NAME:string
    MINIO_PORT:number
+   MINIO_FILE_EXPIRES:string
+
   }
 }

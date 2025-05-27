@@ -46,7 +46,7 @@ export class FileService implements OnModuleInit {
         objectName,
         Buffer.from(file.buffer),
         file.size,
-       { 'Content-Type': file.mimetype },
+        // { 'Content-Type': file.mimetype },
       );
       this.logger.log(
         `File ${objectName} uploaded successfully by user ${user.email}.`,
@@ -72,7 +72,7 @@ export class FileService implements OnModuleInit {
   }
   async getUserFiles(user: { email: string }) {
     const safeEmail = user.email.replace(/@/g, '_at_').replace(/\./g, '_dot_');
-    const files:any[] = [];
+    const files: any[] = [];
     const prifix = `${safeEmail}/`;
     const stream = await this.minioCleint.listObjectsV2(
       process.env.MINIO_BUCKET_NAME,
@@ -82,14 +82,18 @@ export class FileService implements OnModuleInit {
     for await (const obj of stream as AsyncIterable<BucketItem>) {
       if (obj.name && !obj.name?.endsWith('/')) {
         try {
+          const expiry = parseInt(process.env.MINIO_FILE_EXPIRES,10)
+          
           const presignedUrl = await this.minioCleint.presignedGetObject(
             process.env.MINIO_BUCKET_NAME,
             obj.name,
-         60
+            expiry
           );
+        
           files.push({
             filename: obj.name.substring(prifix.length),
-            fullPath: obj.name,
+            expiresAt: new Date(Date.now() + expiry * 1000).toISOString(),
+            expiresIn: `${expiry} sec`,
             url: presignedUrl,
             size: obj.size,
             lastModified: obj.lastModified,
@@ -97,6 +101,6 @@ export class FileService implements OnModuleInit {
         } catch (error) {}
       }
     }
-    return files
+    return files;
   }
 }
