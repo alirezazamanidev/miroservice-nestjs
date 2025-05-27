@@ -1,5 +1,13 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Client } from 'minio';
+import { BufferedFile } from 'src/common/interfaces/file.interface';
 
 @Injectable()
 export class FileService implements OnModuleInit {
@@ -10,7 +18,6 @@ export class FileService implements OnModuleInit {
       const exists = await this.minioCleint.bucketExists(
         process.env.MINIO_BUCKET_NAME,
       );
-      console.log('bucket', exists);
 
       if (!exists) {
         await this.minioCleint.makeBucket(
@@ -27,6 +34,36 @@ export class FileService implements OnModuleInit {
         error,
       );
       throw new Error(`Could not initialize MinIO bucket: ${error.message}`);
+    }
+  }
+
+  async uploadFile(file: BufferedFile, user: { email: string }) {
+    const objectName = `${user.email}/${Date.now()}-${file.originalname}`;
+    try {
+      await this.minioCleint.putObject(
+        process.env.MINIO_BUCKET_NAME,
+        objectName,
+        file.buffer,
+        file.size,
+      );
+      this.logger.log(`File ${objectName} uploaded successfully by user ${user.email}.`);
+      return {
+        message: 'File uploaded successfully',
+        filePath: objectName,
+        size: file.size,
+        mimetype: file.mimetype,
+        originalname: file.originalname,
+      };
+    } catch (error) {
+      this.logger.error(
+        `MinIO upload error for ${objectName} by user ${user.email}: `,
+        error,
+      );
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to upload file to MinIO.',
+        details: error.message,
+      });
     }
   }
 }
