@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AuthClientProvider } from './client.provider';
+import { AuthClientProvider, FileClientProvider } from './client.provider';
 import { Services } from 'src/common/enums/nameService.enum';
 
 @Module({
-    providers: [AuthClientProvider],
-    exports: [Services.AUTH_SERVICE],
+    providers: [AuthClientProvider,FileClientProvider],
+    exports: [Services.AUTH_SERVICE,Services.FILE_SERVICE],
 })
 export class ClientModule {}

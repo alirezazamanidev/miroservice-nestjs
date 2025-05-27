@@ -15,3 +15,19 @@ export const AuthClientProvider = {
     });
   },
 };
+
+export const FileClientProvider = {
+  provide: Services.FILE_SERVICE,
+  useFactory: () => {
+    return ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: [`amqp://${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`],
+        queue: 'file',
+        queueOptions: {
+          durable: false,
+        },
+      },
+    });
+  },
+};

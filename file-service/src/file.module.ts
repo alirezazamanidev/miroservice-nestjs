@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmDbConfig } from './configs/typeOrm.config';
 import { Client } from 'minio';
 import { FileService } from './services/file.service';
+import { FileController } from './controllers/file.controller';
 export const MINIO_CLIENT_TOKEN='MINIO_CLIENT'
 @Module({
   imports: [
@@ -17,7 +18,7 @@ export const MINIO_CLIENT_TOKEN='MINIO_CLIENT'
     // })
 
   ],
-  controllers: [],
+  controllers: [FileController],
   providers: [FileService,{
     provide:MINIO_CLIENT_TOKEN,
     useFactory: async () => {
