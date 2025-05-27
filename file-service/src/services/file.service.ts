@@ -39,6 +39,8 @@ export class FileService implements OnModuleInit {
 
   async uploadFile(file: BufferedFile, user: { email: string }) {
     const objectName = `${user.email}/${Date.now()}-${file.originalname}`;
+    console.log(objectName);
+    
     try {
       await this.minioCleint.putObject(
         process.env.MINIO_BUCKET_NAME,

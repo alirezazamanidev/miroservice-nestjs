@@ -17,8 +17,10 @@ import { ClientProxy } from '@nestjs/microservices';
 import { catchError, lastValueFrom } from 'rxjs';
 import { PatternNameEnum } from 'src/common/enums/pattern.enum';
 import { UploadFileDto } from './dtos/upload-file.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
 
 @ApiTags('File Upload')
+@Auth()
 @Controller('file')
 export class UploadController {
   constructor(
@@ -41,7 +43,7 @@ export class UploadController {
     const filePayload = {
       originalname: file.originalname,
       mimetype: file.mimetype,
-      buffer: file.buffer,
+      buffer: file.buffer.toString(),
       size: file.size,
     };
     const result = await lastValueFrom(
@@ -66,4 +68,4 @@ export class UploadController {
   
   }
 }
-this;
+
