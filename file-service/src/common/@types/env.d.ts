@@ -11,6 +11,12 @@ declare namespace NodeJS {
     POSTGRES_USERNAME: string;
     POSTGRES_PASSWORD: string;
     POSTGRES_DATABASE: string;
-   
+   //minio
+   MINIO_ENDPOINT:string
+   MINIO_ACCESS_KEY:string
+   MINIO_SECRET_KEY:string
+   MINIO_USE_SSL:string
+   MINIO_BUCKET_NAME:string
+   MINIO_PORT:number
   }
 }
