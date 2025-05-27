@@ -13,4 +13,9 @@ export class FileController {
  
         return this.fileService.uploadFile(data.file,data.user);
     }
+
+    @MessagePattern(PatternNameEnum.LIST_FILES)
+    async getUserFiles(data: {user:{email:string}}) {
+        return this.fileService.getUserFiles(data.user);
+    }
 }

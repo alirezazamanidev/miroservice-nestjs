@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { Client } from 'minio';
+import { BucketItem, Client } from 'minio';
 import { BufferedFile } from 'src/common/interfaces/file.interface';
 
 @Injectable()
@@ -38,17 +38,19 @@ export class FileService implements OnModuleInit {
   }
 
   async uploadFile(file: BufferedFile, user: { email: string }) {
-    const objectName = `${user.email}/${Date.now()}-${file.originalname}`;
-    console.log(objectName);
-    
+    const safeEmail = user.email.replace(/@/g, '_at_').replace(/\./g, '_dot_');
+    const objectName = `${safeEmail}/${Date.now()}-${file.originalname}`;
     try {
       await this.minioCleint.putObject(
         process.env.MINIO_BUCKET_NAME,
         objectName,
-        file.buffer,
+        Buffer.from(file.buffer),
         file.size,
+       { 'Content-Type': file.mimetype },
       );
-      this.logger.log(`File ${objectName} uploaded successfully by user ${user.email}.`);
+      this.logger.log(
+        `File ${objectName} uploaded successfully by user ${user.email}.`,
+      );
       return {
         message: 'File uploaded successfully',
         filePath: objectName,
@@ -67,5 +69,34 @@ export class FileService implements OnModuleInit {
         details: error.message,
       });
     }
+  }
+  async getUserFiles(user: { email: string }) {
+    const safeEmail = user.email.replace(/@/g, '_at_').replace(/\./g, '_dot_');
+    const files:any[] = [];
+    const prifix = `${safeEmail}/`;
+    const stream = await this.minioCleint.listObjectsV2(
+      process.env.MINIO_BUCKET_NAME,
+      prifix,
+      true,
+    );
+    for await (const obj of stream as AsyncIterable<BucketItem>) {
+      if (obj.name && !obj.name?.endsWith('/')) {
+        try {
+          const presignedUrl = await this.minioCleint.presignedGetObject(
+            process.env.MINIO_BUCKET_NAME,
+            obj.name,
+         60
+          );
+          files.push({
+            filename: obj.name.substring(prifix.length),
+            fullPath: obj.name,
+            url: presignedUrl,
+            size: obj.size,
+            lastModified: obj.lastModified,
+          });
+        } catch (error) {}
+      }
+    }
+    return files
   }
 }

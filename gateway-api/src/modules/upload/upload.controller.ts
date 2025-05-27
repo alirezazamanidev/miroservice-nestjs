@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpException,
   Inject,
   Post,
@@ -43,7 +44,7 @@ export class UploadController {
     const filePayload = {
       originalname: file.originalname,
       mimetype: file.mimetype,
-      buffer: file.buffer.toString(),
+      buffer: file.buffer,
       size: file.size,
     };
     const result = await lastValueFrom(
@@ -52,20 +53,37 @@ export class UploadController {
           user: req.user,
           file: filePayload,
         })
-        .pipe(
-          catchError((error) => {
-            throw new HttpException(
-              {
-                status: error.status || 500,
-                message: error.message || 'Internal Server Error',
-              },
-              error.status || 500,
-            );
-          }),
-        ),
+            .pipe(
+              catchError((error) => {
+                throw new HttpException(
+                  {
+                    status: error.status || 500,
+                    message: error.message || 'Internal Server Error',
+                  },
+                  error.status || 500,
+                );
+              }),
+            ),
     );
+    return result;
+
+  }
+
+  @Get('list')
+  async listUserFiles(@Req() req: Request) {
+
+    const result=await lastValueFrom(
+      this.fileClient.send(PatternNameEnum.LIST_FILES,{user:req.user})
+      .pipe(
+        catchError((error)=>{
+          throw new HttpException({
+            status: error.status || 500,
+            message: error.message || 'Internal Server Error',
+          }, error.status || 500);
+        })
+      )
+    )
     return result
-  
   }
 }
 
