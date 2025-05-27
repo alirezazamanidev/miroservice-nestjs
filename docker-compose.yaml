@@ -1,4 +1,43 @@
 services:
+  gateway_api:
+    build:
+      context: ./gateway-api
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: api-gateway
+    env_file:
+     - ./.env
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+    depends_on:
+      - rabbitmq
+      - auth-service
+      - file-service
+    restart: unless-stopped 
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: auth-service
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: unless-stopped
+  file-service:
+    build:
+      context: ./file-service
+      dockerfile: Dockerfile
+      args:
+        - APP_NAME=file-service
+    env_file:
+      - ./file-service/.env
+    depends_on:
+      - rabbitmq
+      - minio
+    restart: unless-stopped
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -22,17 +61,6 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_project_data:/data
-  postgres_db:
-    container_name: postgres_db_project
-    image: postgres:17.0-alpine3.20
-    restart: 'no'
-    environment:
-      - POSTGRES_PASSWORD=1111
-      - POSTGRES_USER=postgres
-    volumes:
-      - projectData:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
   redis:
     container_name: redis_db_project
     image: redis:7.4.1-alpine3.20
