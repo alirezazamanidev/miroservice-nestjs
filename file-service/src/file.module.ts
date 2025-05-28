@@ -15,13 +15,16 @@ export const MINIO_CLIENT_TOKEN='MINIO_CLIENT'
   providers: [FileService,{
     provide:MINIO_CLIENT_TOKEN,
     useFactory: async () => {
+      
+    
+      
 
       return new Client({
         endPoint: process.env.MINIO_ENDPOINT,
         port: process.env.MINIO_PORT || 9000,
         useSSL: process.env.MINIO_USE_SSL === 'true',
-        accessKey: process.env.MINIO_ACCESS_KEY,
-        secretKey: process.env.MINIO_SECRET_KEY,
+        accessKey: 'minioadmin',
+        secretKey: 'minioadmin',
       })
     }
   }],

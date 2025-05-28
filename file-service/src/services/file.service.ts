@@ -81,22 +81,22 @@ export class FileService implements OnModuleInit {
         status: HttpStatus.FORBIDDEN,
         message: 'Access Denied',
       });
-    const expiry = expirySeconds || parseInt(process.env.MINIO_FILE_EXPIRES, 10);
+    const expiry =
+      expirySeconds || parseInt(process.env.MINIO_FILE_EXPIRES, 10);
     try {
-        const presignedUrl=await this.minioCleint.presignedGetObject(
-            process.env.MINIO_BUCKET_NAME,
-            filePathInMinio,
-            expiry
-        )
-              return { url: presignedUrl, expires_in_seconds: expiry };
+      const presignedUrl = await this.minioCleint.presignedGetObject(
+        process.env.MINIO_BUCKET_NAME,
+        filePathInMinio,
+        expiry,
+      );
+      return { url: presignedUrl, expires_in_seconds: expiry };
     } catch (error) {
-            throw new RpcException({
+      throw new RpcException({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Failed to generate file access URL.',
         details: error.message,
       });
     }
-   
   }
   async getUserFiles(user: { email: string }) {
     const safeEmail = user.email.replace(/@/g, '_at_').replace(/\./g, '_dot_');
@@ -118,11 +118,15 @@ export class FileService implements OnModuleInit {
             expiry,
           );
 
+          const url = new URL(presignedUrl);
+          url.hostname = 'localhost';
+          url.port = String(process.env.MINIO_PORT);
+
           files.push({
             filename: obj.name.substring(prifix.length),
             expiresAt: new Date(Date.now() + expiry * 1000).toISOString(),
-            expires_in_seconds:expiry,
-            url: presignedUrl,
+            expires_in_seconds: expiry,
+            url: url.toString(),
             size: obj.size,
             lastModified: obj.lastModified,
           });
