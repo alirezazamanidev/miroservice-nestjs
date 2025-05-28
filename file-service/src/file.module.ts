@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmDbConfig } from './configs/typeOrm.config';
 import { Client } from 'minio';
 import { FileService } from './services/file.service';
 import { FileController } from './controllers/file.controller';
@@ -11,12 +9,7 @@ export const MINIO_CLIENT_TOKEN='MINIO_CLIENT'
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-    }),
-    // TypeOrmModule.forRootAsync({
-    //   useClass:TypeOrmDbConfig,
-    //   inject:[TypeOrmDbConfig]
-    // })
-
+    })
   ],
   controllers: [FileController],
   providers: [FileService,{

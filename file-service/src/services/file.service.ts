@@ -46,7 +46,7 @@ export class FileService implements OnModuleInit {
         objectName,
         Buffer.from(file.buffer),
         file.size,
-        // { 'Content-Type': file.mimetype },
+        { 'Content-Type': file.mimetype },
       );
       this.logger.log(
         `File ${objectName} uploaded successfully by user ${user.email}.`,
