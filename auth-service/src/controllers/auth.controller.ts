@@ -8,8 +8,8 @@ import { AuthService } from 'src/services/auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @MessagePattern(PatternNameEnum.GOOGLE_LOGIN)
-  googleLogin(@Payload() user: UserType) {
-    return this.authService.generateJwtTokens(user);
+  async googleLogin(@Payload() user: UserType) {
+    return this.authService.generateJwtTokens(user)
   }
   @MessagePattern(PatternNameEnum.REFRESH_TOKEN)
   async refreshTokens(@Payload() { refreshToken }: { refreshToken: string }) {

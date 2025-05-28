@@ -72,14 +72,17 @@ export class AuthService {
           secret: process.env.REFRESH_TOKEN_SECRET,
         }),
       ]);
-
+     console.log('ok');
+     
       // set refresh token in redis for 7 days
-      const sevenDaysInSeconds = 7 * 24 * 60 * 60;
-      await this.cacheManager.set(
+     
+       await this.cacheManager.set(
         `refreshToken:${user.googleId}`,
         rt,
-        sevenDaysInSeconds,
-      );
+        (7 * 24 * 60 * 60)
+      ) // 7 days
+
+   
 
       return { accessToken: at, refreshToken: rt };
     } catch (error) {

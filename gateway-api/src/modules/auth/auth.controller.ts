@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   HttpException,
+  HttpStatus,
   Inject,
   Req,
   Res,
@@ -39,6 +40,7 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req: Request, @Res() res: Response) {
     // Send user information to the auth service for further processing
+    
     const result = await lastValueFrom(
       this.authClient.send(PatternNameEnum.GOOGLE_LOGIN, req.user).pipe(
         catchError((error) => {
@@ -55,6 +57,7 @@ export class AuthController {
       ),
     );
     if (!result) throw new UnauthorizedException('login failed!');
+
     res
       .cookie(CookieNameEnum.REFRESH_TOKEN, result.accessToken, {
         httpOnly: true,
@@ -69,10 +72,8 @@ export class AuthController {
         sameSite: 'lax',
         expires: new Date(Date.now() + 1 * 3600 * 1000),
       })
-      .json({
-        [CookieNameEnum.ACCESS_TOKEN]: result.accessToken,
-        message: 'Token refreshed successfully',
-      });
+    
+        res.status(HttpStatus.OK).json({ message: "login successFully", accessToken: result.accessToken });
   }
   @ApiOperation({ summary: 'refresh  token' })
   @Get('refresh')

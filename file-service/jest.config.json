@@ -1,0 +1,16 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "preset": "ts-jest",
+  "clearMocks": true,
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/src/$1",
+    "^test/(.*)$": "<rootDir>/test/$1"
+  },
+  "testMatch": [
+    "<rootDir>/src/**/*.spec.ts"
+  ],
+
+  "collectCoverageFrom": ["src/**/*.ts", "!src/main.ts"]
+}
